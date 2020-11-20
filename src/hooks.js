@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import axios from "axios"
 import { formatPokemon, formatPlayingCard } from "./helpers"
 
@@ -10,20 +10,33 @@ const useFlip = (initialVal=false) => {
     return [value, toggle];
 }
 
-function useAxios(url){
-   const [data, setData] = useState([])
-
+function useAxios(keyName, url){
+   const [responses, setResponses] = useLocalStorage(keyName)
    const addCard = async (name) => {
         const res = await axios.get(typeof(name) === 'string' ? `${url}${name}/` : `${url}`)
         const formattedData = typeof(name) === 'string' ? formatPokemon(res.data) : formatPlayingCard(res.data);
-        setData([...data, formattedData])
+        setResponses(data => [...data, formattedData])
    }
 
-   const clearData = () =>{
-       setData([])
-   }
+   const clearData = () => setResponses([]);
 
-    return [data, addCard, clearData]
+    return [responses, addCard, clearData]
 }
 
-export {useFlip, useAxios}
+function useLocalStorage(keyName, initialValue = []){
+    //If item is not already in local storage, get it
+    if(localStorage.getItem(keyName) !== true){
+        initialValue = JSON.parse(localStorage.getItem(keyName))
+    } 
+    const [value, setValue] = useState(initialValue);
+
+    useEffect(() => {
+        localStorage.setItem(keyName, JSON.stringify(value))
+    }, [value, keyName]);
+
+    return [value, setValue]
+}
+
+export default useLocalStorage
+
+export { useFlip, useAxios, useLocalStorage }
