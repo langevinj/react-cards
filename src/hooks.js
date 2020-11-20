@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import axios from "axios"
-import uuid from "uuid"
+import { formatPokemon, formatPlayingCard } from "./helpers"
 
 const useFlip = (initialVal=false) => {
     const[value, setValue] = useState(initialVal)
@@ -15,13 +15,14 @@ function useAxios(url){
 
    const addCard = async (name) => {
         const res = await axios.get(typeof(name) === 'string' ? `${url}${name}/` : `${url}`)
-        setData([...data, {...res.data, id: uuid()}])
+        const formattedData = typeof(name) === 'string' ? formatPokemon(res.data) : formatPlayingCard(res.data);
+        setData([...data, formattedData])
    }
 
    const clearData = () =>{
        setData([])
    }
-   
+
     return [data, addCard, clearData]
 }
 
