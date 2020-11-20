@@ -17,7 +17,12 @@ function useAxios(url){
         const res = await axios.get(typeof(name) === 'string' ? `${url}${name}/` : `${url}`)
         setData([...data, {...res.data, id: uuid()}])
    }
-    return [data, addCard]
+
+   const clearData = () =>{
+       setData([])
+   }
+   
+    return [data, addCard, clearData]
 }
 
 export {useFlip, useAxios}
